@@ -113,6 +113,7 @@
                 serviceId: "service_8vdw2e6",
                 templateId: "template_034xv1p"
             };
+            const publishedWebsiteUrl = "https://ivanvaquero002-alt.github.io/-ChillCat19/";
 
             if (typeof emailjs !== "undefined") {
                 emailjs.init({ publicKey: emailJsConfig.publicKey });
@@ -149,13 +150,16 @@
                 try {
                     await emailjs.send(emailJsConfig.serviceId, emailJsConfig.templateId, {
                         to_email: document.getElementById("share-email").value.trim(),
-                        website_url: window.location.href
+                        website_url: publishedWebsiteUrl
                     });
                     status.textContent = "Correo enviado.";
                     this.reset();
                 } catch (error) {
                     console.error("EmailJS send failed:", error);
-                    status.textContent = "No se pudo enviar. Revisa la configuración de EmailJS.";
+                    const detail = error && typeof error.text === "string"
+                        ? error.text
+                        : "Revisa la consola del navegador para ver el detalle.";
+                    status.textContent = `No se pudo enviar: ${detail}`;
                 } finally {
                     submitButton.disabled = false;
                 }
