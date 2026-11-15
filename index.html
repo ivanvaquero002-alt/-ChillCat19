@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Mi Web 1</title>
+        <link rel="icon" href="">
+        <style>
+            * {
+                box-sizing: border-box;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: grid;
+                grid-template-rows: 1fr auto;
+                background: #f5f5f5;
+                color: #1f1f1f;
+            }
+            .win11 {
+                padding: 70px 70px 30px;
+            }
+            .tail {
+                padding: 24px 16px;
+                text-align: center;
+                font-size: 0.9rem;
+                color: #555;
+                background: #eaeaea;
+                border-top: 1px solid #d9d9d9;
+            }
+            button {
+                margin-top: 20px;
+                padding: 12px 22px;
+                border: 0;
+                border-radius: 999px;
+                background: #0067c0;
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgb(0 103 192 / 25%);
+                transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+            }
+            button:hover {
+                background: #005a9e;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgb(0 90 158 / 30%);
+            }
+            button:active {
+                transform: translateY(0);
+            }
+            button:focus-visible {
+                outline: 3px solid #80c7ff;
+                outline-offset: 3px;
+            }
+
+            #share-form {
+                display: grid;
+                justify-items: start;
+                gap: 10px;
+                margin-top: 24px;
+            }
+
+            #share-email {
+                width: min(100%, 340px);
+                padding: 11px 14px;
+                border: 1px solid #b8b8b8;
+                border-radius: 10px;
+                font-size: 1rem;
+            }
+
+            #share-email:focus-visible {
+                outline: 3px solid #80c7ff;
+                outline-offset: 2px;
+            }
+
+            #share-status {
+                min-height: 1.5em;
+                margin: 0;
+            }
+
+            img {
+                display: block;
+                margin: 35px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="win11">
+            <h1>Iván Vaquero</h1>
+            <p>Hola, esta es mi web 1.</p>
+            <p>Esta web lo he hecho sin la IA, para repasar bien HTML y css y un poco de js.</p>
+            <img src="code-icon.svg" alt="Icono VSCode">
+            <button type="button" onclick="saludar()">Pulsa aquí</button>
+
+            <form id="share-form">
+                <label for="share-email">Enviar esta web a este correo:</label>
+                <input id="share-email" name="email" type="email" autocomplete="email" required
+                       placeholder="nombre@ejemplo.com">
+                <button type="submit">Compartir por correo</button>
+                <p id="share-status" role="status" aria-live="polite"></p>
+            </form>
+        </div>
+
+        <footer class="tail">
+            © 2026 VSCode Insiders - @ChillCat19
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@5/dist/email.min.js"></script>
+        <script>
+            const emailJsConfig = {
+                publicKey: "4nESxZ3fNoEfPztFu",
+                serviceId: "service_8vdw2e6",
+                templateId: "template_034xv1p"
+            };
+
+            if (typeof emailjs !== "undefined") {
+                emailjs.init({ publicKey: emailJsConfig.publicKey });
+            }
+
+            function saludar() {
+                alert("¡Hola, Iván!");
+            }
+
+            document.getElementById("share-form").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const status = document.getElementById("share-status");
+                const submitButton = this.querySelector('button[type="submit"]');
+
+                if (window.location.protocol === "file:") {
+                    status.textContent = "Publica la web en Internet antes de compartirla.";
+                    return;
+                }
+
+                if (Object.values(emailJsConfig).some(value => value.startsWith("TU_"))) {
+                    status.textContent = "Completa primero los tres datos de configuración de EmailJS.";
+                    return;
+                }
+
+                if (typeof emailjs === "undefined") {
+                    status.textContent = "No se pudo cargar EmailJS. Comprueba tu conexión a Internet.";
+                    return;
+                }
+
+                submitButton.disabled = true;
+                status.textContent = "Enviando...";
+
+                try {
+                    await emailjs.send(emailJsConfig.serviceId, emailJsConfig.templateId, {
+                        to_email: document.getElementById("share-email").value.trim(),
+                        website_url: window.location.href
+                    });
+                    status.textContent = "Correo enviado.";
+                    this.reset();
+                } catch (error) {
+                    console.error("EmailJS send failed:", error);
+                    status.textContent = "No se pudo enviar. Revisa la configuración de EmailJS.";
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+        </script>
+    </body>
+</html>
