@@ -129,7 +129,7 @@
                 const submitButton = this.querySelector('button[type="submit"]');
 
                 if (window.location.protocol === "file:") {
-                    status.textContent = "Publica la web en Internet antes de compartirla.";
+                    status.innerHTML = 'Estás viendo la copia local. <a href="https://ivanvaquero002-alt.github.io/-ChillCat19/">Abre la web publicada</a> para compartirla.';
                     return;
                 }
 
