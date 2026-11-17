@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="google-adsense-account" content="ca-pub-7242610445049132">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Iván Vaquero | Mi primera web</title>
+        <meta name="description" content="La primera web personal de Iván Vaquero, creada para practicar HTML, CSS y JavaScript.">
+        <link rel="icon" href="code-icon.svg">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7242610445049132"
+         crossorigin="anonymous"></script>
+        <meta name="google-site-verification" content="hvM9r0RkWaYZKO3mOxMPDzRTbvjGha_GjTs3H1kZSwE" />
+        <script>
+            try {
+                const savedTheme = localStorage.getItem("theme");
+                const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.dataset.theme = savedTheme || (systemPrefersDark ? "dark" : "light");
+            } catch (error) {
+                console.warn("No se pudo recuperar el tema guardado:", error);
+            }
+        </script>
+        <style>
+            :root {
+                color-scheme: light;
+                --page-bg:
+                    radial-gradient(ellipse at 10% 12%, rgb(183 220 255 / 80%), transparent 38%),
+                    radial-gradient(ellipse at 92% 84%, rgb(210 204 255 / 68%), transparent 36%),
+                    linear-gradient(135deg, #eaf4ff, #f5f2ff 55%, #edf5fb);
+                --surface: rgb(255 255 255 / 78%);
+                --surface-soft: rgb(255 255 255 / 62%);
+                --text: #202a35;
+                --muted: #526170;
+                --heading: #153b65;
+                --border: #dce3eb;
+                --field-bg: rgb(255 255 255 / 92%);
+                --field-border: #c8cdd3;
+                --accent: #0067c0;
+                --accent-hover: #005a9e;
+                --accent-soft: #e6f2ff;
+                --shadow: 0 24px 70px rgb(31 56 85 / 14%), 0 3px 10px rgb(31 56 85 / 6%);
+            }
+
+            :root[data-theme="dark"] {
+                color-scheme: dark;
+                --page-bg:
+                    radial-gradient(ellipse at 12% 8%, rgb(34 77 116 / 38%), transparent 42%),
+                    radial-gradient(ellipse at 90% 82%, rgb(75 55 112 / 28%), transparent 38%),
+                    linear-gradient(135deg, #111923, #171923 55%, #111a22);
+                --surface: rgb(31 37 47 / 88%);
+                --surface-soft: rgb(255 255 255 / 3%);
+                --text: #e7eaf0;
+                --muted: #aab5c2;
+                --heading: #d9eaff;
+                --border: #3a4553;
+                --field-bg: #171d26;
+                --field-border: #4a5665;
+                --accent: #0078d4;
+                --accent-hover: #0063b1;
+                --accent-soft: rgb(0 120 212 / 14%);
+                --shadow: 0 24px 70px rgb(0 0 0 / 32%), 0 3px 10px rgb(0 0 0 / 18%);
+            }
+
+            * {
+                box-sizing: border-box;
+                font-family: "Segoe UI Variable", "Segoe UI", Tahoma, sans-serif;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                color: var(--text);
+                background: var(--page-bg);
+                background-attachment: fixed;
+                transition: color 220ms ease, background 220ms ease;
+            }
+
+            .win11 {
+                flex: 1;
+                width: min(100% - 48px, 1040px);
+                margin: clamp(24px, 7vh, 72px) auto 24px;
+                padding: clamp(22px, 4vw, 40px) clamp(24px, 6vw, 68px) clamp(36px, 6vw, 64px);
+                border: 1px solid var(--border);
+                border-radius: 28px;
+                background: var(--surface);
+                box-shadow: var(--shadow);
+                backdrop-filter: blur(28px);
+                transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+            }
+
+            .topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding-bottom: 24px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                color: var(--text);
+                font-weight: 650;
+                letter-spacing: 0.01em;
+            }
+
+            .brand-copy {
+                display: grid;
+                gap: 2px;
+            }
+
+            .brand-copy small {
+                color: var(--muted);
+                font-size: 0.72rem;
+                font-weight: 500;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+            }
+
+            .brand img {
+                width: 36px;
+                height: 36px;
+                margin: 0;
+                padding: 6px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: var(--surface-soft);
+            }
+
+            .theme-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                margin: 0;
+                padding: 8px 12px;
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                background: var(--surface-soft);
+                color: var(--text);
+                box-shadow: none;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+
+            .theme-toggle:hover {
+                border-color: var(--accent);
+                background: var(--surface-soft);
+                box-shadow: none;
+            }
+
+            .theme-toggle:active {
+                background: var(--surface-soft);
+                box-shadow: none;
+            }
+
+            .theme-icon {
+                color: var(--accent);
+                font-size: 1rem;
+                line-height: 1;
+            }
+
+            .intro {
+                display: grid;
+                grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+                align-items: center;
+                gap: clamp(28px, 6vw, 72px);
+                padding: clamp(44px, 8vw, 82px) 0 clamp(48px, 8vw, 78px);
+            }
+
+            .eyebrow {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                margin: 0 0 18px;
+                color: var(--accent);
+                font-size: 0.78rem;
+                font-weight: 700;
+                letter-spacing: 0.13em;
+                text-transform: uppercase;
+            }
+
+            .eyebrow::before {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--accent);
+                box-shadow: 0 0 0 4px var(--accent-soft);
+                content: "";
+            }
+
+            h1 {
+                margin: 0 0 22px;
+                color: var(--heading);
+                font-size: clamp(3rem, 7.5vw, 5.3rem);
+                font-weight: 650;
+                letter-spacing: -0.065em;
+                line-height: 0.98;
+            }
+
+            h1 span {
+                color: var(--accent);
+            }
+
+            p {
+                max-width: 720px;
+                line-height: 1.65;
+            }
+
+            .intro p {
+                margin: 0 0 14px;
+                color: var(--muted);
+                font-size: 1rem;
+            }
+
+            .intro .lead {
+                color: var(--text);
+                font-size: clamp(1.1rem, 2vw, 1.25rem);
+                font-weight: 550;
+            }
+
+            [contenteditable="true"] {
+                width: 100%;
+                max-width: 100%;
+                margin: 24px 0 0;
+                padding: 14px 16px;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                background: var(--surface-soft);
+                color: var(--muted);
+                font-size: 0.92rem;
+                line-height: 1.5;
+                transition: border-color 160ms ease, box-shadow 160ms ease;
+            }
+
+            [contenteditable="true"]:focus-visible {
+                outline: 2px solid var(--accent);
+                outline-offset: 2px;
+                border-color: var(--accent);
+            }
+
+            .hero-visual {
+                position: relative;
+                display: grid;
+                min-height: 330px;
+                place-items: center;
+                overflow: hidden;
+                border: 1px solid var(--border);
+                border-radius: 24px;
+                background:
+                    radial-gradient(circle at 50% 42%, var(--accent-soft), transparent 58%),
+                    var(--surface-soft);
+                isolation: isolate;
+            }
+
+            .hero-visual::before,
+            .hero-visual::after {
+                position: absolute;
+                z-index: -1;
+                border: 1px solid var(--border);
+                border-radius: 50%;
+                content: "";
+            }
+
+            .hero-visual::before {
+                width: 230px;
+                height: 230px;
+            }
+
+            .hero-visual::after {
+                width: 300px;
+                height: 300px;
+                opacity: 0.55;
+            }
+
+            .visual-icon {
+                display: grid;
+                width: 132px;
+                height: 132px;
+                place-items: center;
+                border: 1px solid var(--border);
+                border-radius: 34px;
+                background: var(--surface);
+                box-shadow: 0 18px 45px rgb(0 50 100 / 14%);
+                transform: rotate(-6deg);
+                transition: transform 220ms ease;
+            }
+
+            .hero-visual:hover .visual-icon {
+                transform: rotate(0) scale(1.04);
+            }
+
+            .visual-icon img {
+                width: 76px;
+                height: 76px;
+                object-fit: contain;
+            }
+
+            .visual-tag {
+                position: absolute;
+                top: 22px;
+                right: 22px;
+                padding: 8px 11px;
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                background: var(--surface);
+                color: var(--muted);
+                font-size: 0.7rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+            }
+
+            .visual-caption {
+                position: absolute;
+                right: 20px;
+                bottom: 20px;
+                left: 20px;
+                display: grid;
+                gap: 4px;
+                text-align: center;
+            }
+
+            .visual-caption span {
+                color: var(--muted);
+                font-size: 0.7rem;
+                font-weight: 700;
+                letter-spacing: 0.13em;
+            }
+
+            .visual-caption strong {
+                color: var(--text);
+                font-size: 0.95rem;
+            }
+
+            .tail {
+                padding: 0 16px 24px;
+                text-align: center;
+                color: var(--muted);
+                font-size: 0.875rem;
+            }
+
+            hr {
+                display: none;
+            }
+
+            button {
+                display: inline-block;
+                margin-top: 16px;
+                padding: 10px 18px;
+                border: 1px solid var(--accent);
+                border-radius: 8px;
+                background: var(--accent);
+                color: #fff;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                text-decoration: none;
+                box-shadow: 0 2px 5px rgb(0 73 135 / 18%);
+                transition: background-color 160ms ease, box-shadow 160ms ease;
+            }
+
+            button:hover {
+                background: var(--accent-hover);
+                box-shadow: 0 4px 10px rgb(0 73 135 / 22%);
+            }
+
+            button:active {
+                background: var(--accent-hover);
+                box-shadow: none;
+            }
+
+            button:focus-visible {
+                outline: 2px solid var(--text);
+                outline-offset: 3px;
+            }
+
+            button:disabled {
+                cursor: wait;
+                opacity: 0.65;
+            }
+
+            #contact-form {
+                display: grid;
+                justify-items: stretch;
+                gap: 10px;
+                max-width: 620px;
+                margin: 0 auto;
+                padding: clamp(22px, 4vw, 34px);
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                background: var(--surface-soft);
+            }
+
+            .form-heading {
+                margin-bottom: 8px;
+            }
+
+            .form-heading h2 {
+                margin: 0 0 6px;
+                color: var(--heading);
+                font-size: clamp(1.45rem, 3vw, 1.8rem);
+                letter-spacing: -0.035em;
+            }
+
+            .form-heading p {
+                margin: 0;
+                color: var(--muted);
+                font-size: 0.92rem;
+            }
+
+            #contact-form label {
+                margin-top: 8px;
+                color: var(--text);
+                font-size: 0.9rem;
+                font-weight: 600;
+            }
+
+            #contact-form input,
+            #contact-form textarea {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1px solid var(--field-border);
+                border-radius: 9px;
+                background: var(--field-bg);
+                color: var(--text);
+                font-size: 1rem;
+                transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+            }
+
+            #contact-form input::placeholder,
+            #contact-form textarea::placeholder {
+                color: var(--muted);
+                opacity: 0.78;
+            }
+
+            #contact-form textarea {
+                min-height: 140px;
+                resize: vertical;
+            }
+
+            #contact-form input:hover,
+            #contact-form textarea:hover {
+                border-color: var(--muted);
+            }
+
+            #contact-form input:focus-visible,
+            #contact-form textarea:focus-visible {
+                border-color: var(--accent);
+                outline: none;
+                background: var(--field-bg);
+                box-shadow: 0 0 0 3px var(--accent-soft);
+            }
+
+            #contact-form button {
+                justify-self: start;
+                margin-top: 12px;
+                padding: 12px 20px;
+            }
+
+            #contact-status {
+                min-height: 1.5em;
+                margin: 4px 0 0;
+                color: var(--muted);
+                font-size: 0.9rem;
+            }
+
+            #contact-status:not(:empty) {
+                padding: 10px 12px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: var(--surface);
+            }
+
+            #contact-status a {
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+            @media (max-width: 600px) {
+                .win11 {
+                    width: min(100% - 28px, 1040px);
+                    margin: 14px auto 18px;
+                    padding: 20px 18px 28px;
+                    border-radius: 16px;
+                }
+
+                .topbar {
+                    gap: 10px;
+                    padding-bottom: 18px;
+                }
+
+                .brand {
+                    gap: 8px;
+                    font-size: 0.9rem;
+                }
+
+                .brand-copy small {
+                    font-size: 0.63rem;
+                }
+
+                .brand img {
+                    width: 32px;
+                    height: 32px;
+                }
+
+                .theme-toggle {
+                    gap: 6px;
+                    padding: 8px 10px;
+                    font-size: 0.8rem;
+                }
+
+                .intro {
+                    grid-template-columns: 1fr;
+                    gap: 30px;
+                    padding: 42px 0;
+                }
+
+                h1 {
+                    font-size: clamp(3rem, 16vw, 4.4rem);
+                }
+
+                .hero-visual {
+                    min-height: 260px;
+                    border-radius: 20px;
+                }
+
+                .hero-visual::before {
+                    width: 190px;
+                    height: 190px;
+                }
+
+                .hero-visual::after {
+                    width: 250px;
+                    height: 250px;
+                }
+
+                #contact-form {
+                    padding: 22px 18px;
+                }
+            }
+
+            @media (max-width: 380px) {
+                .brand-copy small {
+                    display: none;
+                }
+
+                .theme-toggle {
+                    padding: 8px;
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    scroll-behavior: auto !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="win11">
+            <header class="topbar">
+                <div class="brand">
+                    <img src="code-icon.svg" alt="">
+                    <span class="brand-copy">
+                        <span>Iván Vaquero</span>
+                        <small>Mi espacio personal</small>
+                    </span>
+                </div>
+                <button class="theme-toggle" id="theme-toggle" type="button"
+                        aria-label="Alternar tema claro y oscuro" aria-pressed="false">
+                    <span class="theme-icon" id="theme-icon" aria-hidden="true"><img src=""></span>
+                    <span id="theme-label">Modo oscuro</span>
+                </button>
+            </header>
+
+            <main class="intro">
+                <div class="intro-copy">
+                    <p class="eyebrow">Mi primera web</p>
+                    <h1>Iván<br><span>Vaquero</span></h1>
+                    <p class="lead">Hola, esta es mi primera web.</p>
+                    <p>He creado esta web sin IA para repasar HTML, CSS y un poco de JavaScript.</p>
+                    <p contenteditable="true">Esto debería de ser editable...</p>
+                    <button type="button" onclick="saludar()">Pulsa aquí</button>
+                </div>
+
+                <aside class="hero-visual" aria-label="Icono de programación">
+                    <span class="visual-tag">EN CONSTRUCCIÓN</span>
+                    <div class="visual-icon">
+                        <img src="code-icon.svg" alt="">
+                    </div>
+                    <div class="visual-caption">
+                        <span>APRENDIENDO Y CREANDO</span>
+                        <strong>HTML · CSS · JavaScript</strong>
+                    </div>
+                </aside>
+            </main>
+
+            <form id="contact-form">
+                <div class="form-heading">
+                    <h2>Hablemos</h2>
+                    <p>¿Tienes algo que contarme? Envíame un mensaje.</p>
+                </div>
+
+                <label for="contact-name">Tu nombre:</label>
+                <input id="contact-name" name="from_name" type="text" autocomplete="name"
+                       maxlength="100" placeholder="¿Cómo te llamas?" required>
+
+                <label for="contact-email">Tu correo:</label>
+                <input id="contact-email" name="from_email" type="email" autocomplete="email"
+                       maxlength="254" placeholder="tu@correo.com" required>
+
+                <label for="contact-message">Mensaje:</label>
+                <textarea id="contact-message" name="message" maxlength="2000"
+                          placeholder="Escribe aquí tu mensaje..." required></textarea>
+
+                <button type="submit">Enviar mensaje</button>
+                <p id="contact-status" role="status" aria-live="polite"></p>
+            </form>
+        </div>
+        <hr>
+        <footer class="tail">
+            © 2026 VSCode Insiders - @ChillCat19
+        </footer>
+
+        <script>
+            const themeToggle = document.getElementById("theme-toggle");
+            const themeLabel = document.getElementById("theme-label");
+            const themeIcon = document.getElementById("theme-icon");
+
+            function updateThemeControl(theme) {
+                const isDark = theme === "dark";
+                themeToggle.setAttribute("aria-pressed", String(isDark));
+                themeLabel.textContent = isDark ? "Modo claro" : "Modo oscuro";
+                themeIcon.textContent = isDark ? "☀" : "☾";
+            }
+
+            updateThemeControl(document.documentElement.dataset.theme);
+            themeToggle.addEventListener("click", function () {
+                const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+                document.documentElement.dataset.theme = nextTheme;
+                updateThemeControl(nextTheme);
+
+                try {
+                    localStorage.setItem("theme", nextTheme);
+                } catch (error) {
+                    console.warn("No se pudo guardar el tema elegido:", error);
+                }
+            });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@5/dist/email.min.js"></script>
+        <script>
+            const emailJsConfig = {
+                publicKey: "4nESxZ3fNoEfPztFu",
+                serviceId: "service_8vdw2e6",
+                templateId: "template_034xv1p"
+            };
+            const publishedWebsiteUrl = "https://ivanvaquero002-alt.github.io/-ChillCat19/";
+
+            if (typeof emailjs !== "undefined") {
+                emailjs.init({ publicKey: emailJsConfig.publicKey });
+            }
+
+            function saludar() {
+                alert("¡Holaa!");
+                alert("Esta web lo ha creado Iván Vaquero")
+            }
+
+            document.getElementById("contact-form").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const status = document.getElementById("contact-status");
+                const submitButton = this.querySelector('button[type="submit"]');
+
+                if (window.location.protocol === "file:") {
+                    status.innerHTML = 'Abre la <a href="https://ivanvaquero002-alt.github.io/-ChillCat19/">web publicada</a> para enviar el mensaje.';
+                    return;
+                }
+
+                if (typeof emailjs === "undefined") {
+                    status.textContent = "No se pudo cargar EmailJS. Comprueba tu conexión a Internet.";
+                    return;
+                }
+
+                submitButton.disabled = true;
+                status.textContent = "Enviando...";
+
+                try {
+                    await emailjs.send(emailJsConfig.serviceId, emailJsConfig.templateId, {
+                        from_name: document.getElementById("contact-name").value.trim(),
+                        from_email: document.getElementById("contact-email").value.trim(),
+                        message: document.getElementById("contact-message").value.trim(),
+                        website_url: publishedWebsiteUrl
+                    });
+                    status.textContent = "Mensaje enviado. ¡Gracias por contactar!";
+                    this.reset();
+                } catch (error) {
+                    console.error("EmailJS send failed:", error);
+                    const detail = error && typeof error.text === "string"
+                        ? error.text
+                        : error && typeof error.message === "string"
+                            ? error.message
+                            : "Comprueba la configuración de EmailJS.";
+                    status.textContent = `No se pudo enviar: ${detail}`;
+                } finally {
+                    submitButton.disabled = false;
+                }
+            });
+        </script>
+    </body>
+</html>
