@@ -61,6 +61,43 @@
                 outline-offset: 3px;
             }
 
+            .page-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 24px;
+            }
+
+            .page-nav a {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 12px 22px;
+                border-radius: 999px;
+                background: #0067c0;
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 600;
+                text-decoration: none;
+                box-shadow: 0 4px 12px rgb(0 103 192 / 25%);
+                transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+            }
+
+            .page-nav a:hover {
+                background: #005a9e;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgb(0 90 158 / 30%);
+            }
+
+            .page-nav a:active {
+                transform: translateY(0);
+            }
+
+            .page-nav a:focus-visible {
+                outline: 3px solid #80c7ff;
+                outline-offset: 3px;
+            }
+
             #contact-form {
                 display: grid;
                 justify-items: start;
@@ -105,6 +142,10 @@
     </head>
     <body>
         <div class="win11">
+            <nav class="page-nav" aria-label="Navegación principal">
+                <a href="Estilo-1.html">Estilo 1</a>
+                <a href="Android-17-Editor.html">Editor de texto</a>
+            </nav>
             <h1>Iván Vaquero</h1>
             <p>Hola, esta es mi web 1.</p>
             <p>Esta web lo he hecho sin la IA, para aprender bien HTML y css y un poco de js.</p>
@@ -127,10 +168,6 @@
                 <button type="submit">Enviar mensaje</button>
                 <p id="contact-status" role="status" aria-live="polite"></p>
             </form>
-        </div>
-        <div>
-            <a href="Estilo-1.html">Estilo 1</a>
-            <a href="Android 17-Editor.html">Editor de texto</a>
         </div>
         <hr>
         <footer class="tail">
