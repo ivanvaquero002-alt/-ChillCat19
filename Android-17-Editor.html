@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eff9f2">
+    <meta name="description" content="Un editor de texto moderno, inspirado en Android 17.">
+    <title>Android 17-Editor</title>
+    <link rel="icon" href="vscode-insiders.svg">
+    <script>
+        try {
+            const savedTheme = localStorage.getItem("android17-editor-theme");
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+        } catch (error) {
+            console.warn("No se pudo recuperar el tema guardado:", error);
+        }
+    </script>
+    <style>
+        :root {
+            color-scheme: light;
+            --page-bg:
+                radial-gradient(ellipse at 9% 9%, rgb(176 239 199 / 64%), transparent 34%),
+                radial-gradient(ellipse at 94% 82%, rgb(184 232 213 / 58%), transparent 34%),
+                linear-gradient(145deg, #eff9f2, #eff5f1 58%, #f3f8f2);
+            --surface: rgb(255 255 255 / 78%);
+            --surface-solid: #fff;
+            --surface-soft: rgb(255 255 255 / 62%);
+            --text: #252633;
+            --muted: #707181;
+            --heading: #20392b;
+            --border: #dce8df;
+            --accent: #16834a;
+            --accent-strong: #0e6f3c;
+            --accent-soft: #e3f5e9;
+            --mint: #dff4e9;
+            --paper: #fff;
+            --paper-text: #343340;
+            --shadow: 0 24px 70px rgb(34 86 53 / 13%), 0 3px 12px rgb(34 86 53 / 5%);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --page-bg:
+                radial-gradient(ellipse at 8% 8%, rgb(48 130 78 / 30%), transparent 36%),
+                radial-gradient(ellipse at 94% 82%, rgb(38 105 82 / 22%), transparent 35%),
+                linear-gradient(145deg, #151d18, #1a211d 58%, #171e19);
+            --surface: rgb(34 43 37 / 90%);
+            --surface-solid: #252e28;
+            --surface-soft: rgb(255 255 255 / 4%);
+            --text: #eeedf5;
+            --muted: #b1afc0;
+            --heading: #e3f5e8;
+            --border: #414c43;
+            --accent: #75dfa0;
+            --accent-strong: #a7efc2;
+            --accent-soft: #2d4435;
+            --mint: #283d36;
+            --paper: #292f2b;
+            --paper-text: #f0eff5;
+            --shadow: 0 24px 70px rgb(0 0 0 / 32%), 0 3px 12px rgb(0 0 0 / 18%);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI Variable", "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            background: var(--page-bg);
+            background-attachment: fixed;
+            transition: color 200ms ease, background 200ms ease;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            color: inherit;
+        }
+
+        button:focus-visible, input:focus-visible, select:focus-visible, [contenteditable="true"]:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+            outline-offset: 3px;
+        }
+
+        .app-shell {
+            width: min(1180px, calc(100% - 40px));
+            margin: clamp(18px, 5vh, 52px) auto 22px;
+            padding: clamp(20px, 3.7vw, 42px);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(28px);
+        }
+
+        .topbar, .brand, .top-actions, .editor-heading, .editor-tools, .statusbar, .document-meta {
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar {
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            gap: 12px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border-radius: 15px;
+            color: #fff;
+            background: linear-gradient(145deg, #3ddc84, #148747);
+            box-shadow: 0 6px 16px rgb(31 137 74 / 26%);
+        }
+
+        .brand-mark svg {
+            width: 23px;
+            height: 23px;
+        }
+
+        .brand-copy {
+            display: grid;
+            gap: 2px;
+        }
+
+        .brand-copy small {
+            color: var(--muted);
+            font-size: .72rem;
+            font-weight: 550;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .top-actions {
+            gap: 9px;
+        }
+
+        .theme-toggle, .subtle-button {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 13px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface-soft);
+            color: var(--text);
+            cursor: pointer;
+            transition: background 160ms ease, transform 160ms ease, border-color 160ms ease;
+        }
+
+        .theme-toggle:hover, .subtle-button:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .theme-toggle:active, .subtle-button:active, .tool-button:active {
+            transform: scale(.97);
+        }
+
+        .intro {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: end;
+            gap: 28px;
+            padding: clamp(32px, 5vw, 54px) 2px 32px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin: 0 0 13px;
+            color: var(--accent);
+            font-size: .76rem;
+            font-weight: 750;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+            content: "";
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--heading);
+            font-size: clamp(2.5rem, 6vw, 4.25rem);
+            font-weight: 680;
+            letter-spacing: -.07em;
+            line-height: 1;
+        }
+
+        h1 span {
+            color: var(--accent);
+        }
+
+        .intro-copy > p:last-child {
+            max-width: 610px;
+            margin: 15px 0 0;
+            color: var(--muted);
+            font-size: 1.02rem;
+            line-height: 1.65;
+        }
+
+        .feature-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: .83rem;
+            white-space: nowrap;
+        }
+
+        .feature-pill strong {
+            color: var(--text);
+            font-weight: 650;
+        }
+
+        .feature-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #56a77b;
+            box-shadow: 0 0 0 4px var(--mint);
+        }
+
+        .editor-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 23px;
+            background: var(--surface-solid);
+            box-shadow: 0 10px 32px rgb(37 69 47 / 7%);
+        }
+
+        .editor-heading {
+            justify-content: space-between;
+            gap: 14px;
+            padding: 17px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .document-meta {
+            min-width: 0;
+            gap: 12px;
+        }
+
+        .document-icon {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            place-items: center;
+            border-radius: 13px;
+            color: var(--accent);
+            background: var(--accent-soft);
+            font-size: 1.1rem;
+        }
+
+        .document-info {
+            display: grid;
+            min-width: 0;
+            gap: 2px;
+        }
+
+        #document-title {
+            width: min(48vw, 340px);
+            min-width: 130px;
+            padding: 2px 0;
+            border: 0;
+            background: transparent;
+            color: var(--text);
+            font-size: .96rem;
+            font-weight: 680;
+        }
+
+        .document-info small {
+            color: var(--muted);
+            font-size: .75rem;
+        }
+
+        .editor-heading-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .primary-button {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            font-size: .86rem;
+            font-weight: 650;
+            transition: transform 160ms ease, background 160ms ease;
+        }
+
+        :root[data-theme="dark"] .primary-button {
+            color: #173a25;
+        }
+
+        .primary-button:hover {
+            background: var(--accent-strong);
+            transform: translateY(-1px);
+        }
+
+        .editor-tools {
+            flex-wrap: wrap;
+            gap: 7px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-soft);
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-right: 9px;
+            border-right: 1px solid var(--border);
+        }
+
+        .tool-group:last-child {
+            padding-right: 0;
+            border-right: 0;
+        }
+
+        .tool-button {
+            display: inline-grid;
+            width: 35px;
+            height: 35px;
+            flex: 0 0 auto;
+            place-items: center;
+            border: 0;
+            border-radius: 11px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-size: .93rem;
+            font-weight: 650;
+            transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+        }
+
+        .tool-button:hover, .tool-button[aria-pressed="true"] {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .tool-button.wide {
+            width: 39px;
+        }
+
+        .tool-select {
+            height: 35px;
+            max-width: 148px;
+            padding: 0 10px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-size: .84rem;
+        }
+
+        .tool-select:hover {
+            border-color: var(--border);
+            background: var(--surface-solid);
+        }
+
+        .color-tool {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-tool input {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .color-indicator {
+            width: 17px;
+            height: 17px;
+            border: 2px solid var(--surface-solid);
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 1px var(--border);
+        }
+
+        .editor-workspace {
+            min-height: 470px;
+            padding: clamp(20px, 5vw, 52px);
+            background:
+                radial-gradient(ellipse at 50% 0%, rgb(207 235 215 / 24%), transparent 55%),
+                var(--surface-soft);
+        }
+
+        .paper {
+            width: min(100%, 720px);
+            min-height: 420px;
+            margin: 0 auto;
+            padding: clamp(25px, 6vw, 62px) clamp(22px, 7vw, 76px);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--paper);
+            color: var(--paper-text);
+            box-shadow: 0 8px 30px rgb(38 59 43 / 8%);
+            font-size: 1rem;
+            line-height: 1.85;
+            overflow-wrap: anywhere;
+        }
+
+        .paper:focus {
+            outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+            outline-offset: 4px;
+        }
+
+        .paper h1, .paper h2, .paper h3 {
+            color: inherit;
+            letter-spacing: -.035em;
+            line-height: 1.25;
+        }
+
+        .paper h1 {
+            margin: 0 0 20px;
+            font-size: clamp(1.8rem, 4vw, 2.45rem);
+        }
+
+        .paper h2 {
+            margin: 1.5em 0 .45em;
+            font-size: 1.5rem;
+        }
+
+        .paper p {
+            margin: 0 0 1em;
+        }
+
+        .paper blockquote {
+            margin: 1.4em 0;
+            padding: 4px 0 4px 18px;
+            border-left: 3px solid var(--accent);
+            color: var(--muted);
+        }
+
+        .paper pre {
+            overflow-x: auto;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: var(--accent-soft);
+            font-family: Consolas, monospace;
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+
+        .paper a {
+            color: var(--accent);
+        }
+
+        .statusbar {
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 19px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .77rem;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .save-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .save-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #52a873;
+        }
+
+        .save-dot.unsaved {
+            background: #db9b42;
+        }
+
+        .help-text {
+            margin: 14px 4px 0;
+            color: var(--muted);
+            font-size: .78rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .tail {
+            padding: 0 16px 24px;
+            color: var(--muted);
+            font-size: .82rem;
+            text-align: center;
+        }
+
+        .sr-only {
+            position: absolute;
+            overflow: hidden;
+            width: 1px;
+            height: 1px;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            clip-path: inset(50%);
+        }
+
+        @media (max-width: 760px) {
+            .app-shell {
+                width: min(100% - 24px, 1180px);
+                margin: 12px auto 16px;
+                padding: 19px 16px 22px;
+                border-radius: 22px;
+            }
+
+            .intro {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 34px 2px 25px;
+            }
+
+            .feature-pill {
+                justify-self: start;
+            }
+
+            .editor-heading {
+                padding: 14px;
+            }
+
+            .editor-heading-actions .subtle-button {
+                display: none;
+            }
+
+            .editor-tools {
+                gap: 5px;
+                padding: 10px;
+            }
+
+            .tool-group {
+                padding-right: 5px;
+            }
+
+            .tool-select {
+                max-width: 118px;
+                padding: 0 6px;
+            }
+
+            .editor-workspace {
+                min-height: 390px;
+                padding: 16px 10px;
+            }
+
+            .paper {
+                min-height: 360px;
+                padding: 26px 22px;
+            }
+
+            .statusbar {
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .brand-copy small {
+                font-size: .62rem;
+            }
+
+            .brand {
+                gap: 8px;
+                font-size: .9rem;
+            }
+
+            .brand-mark {
+                width: 37px;
+                height: 37px;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                padding: 8px;
+                font-size: 0;
+            }
+
+            .theme-toggle span {
+                font-size: 1rem;
+            }
+
+            h1 {
+                font-size: clamp(2.7rem, 14vw, 3.7rem);
+            }
+
+            .editor-heading {
+                gap: 8px;
+            }
+
+            #document-title {
+                width: min(38vw, 190px);
+                min-width: 105px;
+                font-size: .86rem;
+            }
+
+            .document-info small {
+                font-size: .68rem;
+            }
+
+            .primary-button {
+                min-height: 38px;
+                padding: 8px 12px;
+                font-size: .8rem;
+            }
+
+            .tool-group {
+                gap: 1px;
+            }
+
+            .tool-button {
+                width: 31px;
+                height: 33px;
+            }
+
+            .tool-select {
+                max-width: 104px;
+                font-size: .77rem;
+            }
+
+            .statusbar {
+                flex-direction: column;
+                gap: 7px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M6.5 4.5h8l4 4v11h-12v-15Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                        <path d="M14.5 4.5v4h4M9 13h7M9 16.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span class="brand-copy">
+                    <span>Estudio</span>
+                    <small>Una idea de Android 17</small>
+                </span>
+            </div>
+            <div class="top-actions">
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema" aria-pressed="false">
+                    <span id="theme-icon" aria-hidden="true">☾</span>
+                    <span id="theme-label">Modo oscuro</span>
+                </button>
+            </div>
+        </header>
+
+        <section class="intro" aria-labelledby="page-title">
+            <div class="intro-copy">
+                <p class="eyebrow">Tu espacio para crear</p>
+                <h1 id="page-title">Escribe a tu <span>manera.</span></h1>
+                <p>Un editor limpio, potente y siempre listo. Dale forma a tus ideas y deja que se guarden automáticamente mientras escribes.</p>
+            </div>
+            <div class="feature-pill"><span class="feature-dot" aria-hidden="true"></span><strong>Todo listo</strong><span>· guardado automático</span></div>
+        </section>
+
+        <section class="editor-card" aria-label="Editor de texto">
+            <header class="editor-heading">
+                <div class="document-meta">
+                    <span class="document-icon" aria-hidden="true">✎</span>
+                    <div class="document-info">
+                        <label class="sr-only" for="document-title">Nombre del documento</label>
+                        <input id="document-title" type="text" maxlength="100" value="Documento sin título" autocomplete="off">
+                        <small id="document-date">Documento local · En este dispositivo</small>
+                    </div>
+                </div>
+                <div class="editor-heading-actions">
+                    <button class="subtle-button" id="import-button" type="button" title="Abrir un archivo de texto">Abrir</button>
+                    <button class="primary-button" id="export-button" type="button" title="Descargar como archivo de texto">
+                        <span aria-hidden="true">↓</span> Exportar
+                    </button>
+                    <input class="sr-only" id="file-input" type="file" accept=".txt,.md,.html,.htm,text/plain,text/markdown,text/html">
+                </div>
+            </header>
+
+            <div class="editor-tools" role="toolbar" aria-label="Formato del texto">
+                <div class="tool-group">
+                    <button class="tool-button" type="button" data-command="undo" aria-label="Deshacer" title="Deshacer (Ctrl+Z)">↶</button>
+                    <button class="tool-button" type="button" data-command="redo" aria-label="Rehacer" title="Rehacer (Ctrl+Y)">↷</button>
+                </div>
+                <div class="tool-group">
+                    <label class="sr-only" for="format-select">Estilo de párrafo</label>
+                    <select class="tool-select" id="format-select" aria-label="Estilo de párrafo">
+                        <option value="p">Texto normal</option>
+                        <option value="h1">Título grande</option>
+                        <option value="h2">Encabezado</option>
+                        <option value="h3">Subencabezado</option>
+                    </select>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-button" type="button" data-command="bold" aria-label="Negrita" title="Negrita (Ctrl+B)"><strong>B</strong></button>
+                    <button class="tool-button" type="button" data-command="italic" aria-label="Cursiva" title="Cursiva (Ctrl+I)"><em>I</em></button>
+                    <button class="tool-button" type="button" data-command="underline" aria-label="Subrayado" title="Subrayado (Ctrl+U)"><u>U</u></button>
+                    <button class="tool-button" type="button" data-command="strikeThrough" aria-label="Tachado" title="Tachado"><s>S</s></button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-button" type="button" data-command="insertUnorderedList" aria-label="Lista con viñetas" title="Lista con viñetas">☷</button>
+                    <button class="tool-button" type="button" data-command="insertOrderedList" aria-label="Lista numerada" title="Lista numerada">≡</button>
+                    <button class="tool-button" type="button" id="quote-button" aria-label="Cita" title="Cita">❞</button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-button" type="button" data-command="justifyLeft" aria-label="Alinear a la izquierda" title="Alinear a la izquierda">☰</button>
+                    <button class="tool-button" type="button" data-command="justifyCenter" aria-label="Centrar" title="Centrar">☷</button>
+                    <button class="tool-button" type="button" id="link-button" aria-label="Insertar enlace" title="Insertar enlace">↗</button>
+                    <label class="tool-button color-tool" title="Color de texto" aria-label="Color de texto">
+                        <span class="color-indicator" id="color-indicator"></span>
+                        <input type="color" id="text-color" value="#16834a" aria-label="Elegir color de texto">
+                    </label>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-button" type="button" id="clear-format" aria-label="Quitar formato" title="Quitar formato">Tx</button>
+                </div>
+            </div>
+
+            <div class="editor-workspace">
+                <article class="paper" id="editor" contenteditable="true" role="textbox" aria-label="Contenido del documento" aria-multiline="true" spellcheck="true">
+                    <h1>Un lugar para tus ideas</h1>
+                    <p>Empieza a escribir aquí. Este espacio es tuyo: organiza tus pensamientos, planifica un proyecto o simplemente escribe lo que se te ocurra.</p>
+                    <h2>Un editor que sigue tu ritmo</h2>
+                    <p>Selecciona cualquier texto para darle formato. Puedes crear títulos, listas y enlaces, y tu documento se guardará automáticamente en este dispositivo.</p>
+                    <p><strong>Consejo:</strong> usa los atajos de teclado para escribir sin interrupciones.</p>
+                </article>
+            </div>
+
+            <footer class="statusbar">
+                <div class="status-left">
+                    <span class="save-state" role="status" aria-live="polite"><span class="save-dot" id="save-dot"></span><span id="save-label">Guardado en este dispositivo</span></span>
+                </div>
+                <div class="status-right">
+                    <span id="word-count">0 palabras</span>
+                    <span id="char-count">0 caracteres</span>
+                </div>
+            </footer>
+        </section>
+        <p class="help-text">Tus documentos se guardan en este navegador. Usa <kbd>Ctrl</kbd> + <kbd>S</kbd> para guardar y <kbd>Ctrl</kbd> + <kbd>B</kbd> para aplicar negrita.</p>
+    </main>
+    <footer class="tail">© 2026 · Estudio · Inspirado en Android 17</footer>
+
+    <script>
+        (function () {
+            const storageKey = "android17-editor-document";
+            const editor = document.getElementById("editor");
+            const titleInput = document.getElementById("document-title");
+            const saveLabel = document.getElementById("save-label");
+            const saveDot = document.getElementById("save-dot");
+            const wordCount = document.getElementById("word-count");
+            const charCount = document.getElementById("char-count");
+            const themeToggle = document.getElementById("theme-toggle");
+            let saveTimer;
+
+            function setSaveState(message, isUnsaved) {
+                saveLabel.textContent = message;
+                saveDot.classList.toggle("unsaved", isUnsaved);
+            }
+
+            function updateCounts() {
+                const text = editor.innerText.replace(/\u00a0/g, " ").trim();
+                const words = text ? text.split(/\s+/).length : 0;
+                wordCount.textContent = words + (words === 1 ? " palabra" : " palabras");
+                charCount.textContent = text.length + (text.length === 1 ? " carácter" : " caracteres");
+            }
+
+            function saveDocument() {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify({
+                        title: titleInput.value.trim() || "Documento sin título",
+                        content: editor.innerHTML
+                    }));
+                    setSaveState("Guardado en este dispositivo", false);
+                } catch (error) {
+                    console.error("No se pudo guardar el documento:", error);
+                    setSaveState("No se pudo guardar · revisa el almacenamiento del navegador", true);
+                }
+            }
+
+            function scheduleSave() {
+                setSaveState("Guardando…", true);
+                window.clearTimeout(saveTimer);
+                saveTimer = window.setTimeout(saveDocument, 350);
+            }
+
+            function loadDocument() {
+                try {
+                    const saved = localStorage.getItem(storageKey);
+                    if (!saved) return;
+                    const documentData = JSON.parse(saved);
+                    if (typeof documentData.title === "string") titleInput.value = documentData.title;
+                    if (typeof documentData.content === "string") editor.innerHTML = documentData.content;
+                } catch (error) {
+                    console.error("No se pudo recuperar el documento guardado:", error);
+                    setSaveState("No se pudo abrir el documento guardado", true);
+                }
+            }
+
+            function runCommand(command, value) {
+                editor.focus();
+                document.execCommand(command, false, value || null);
+                updateCounts();
+                scheduleSave();
+            }
+
+            document.querySelectorAll("[data-command]").forEach(function (button) {
+                button.addEventListener("mousedown", function (event) {
+                    event.preventDefault();
+                });
+                button.addEventListener("click", function () {
+                    runCommand(button.dataset.command);
+                });
+            });
+
+            document.getElementById("format-select").addEventListener("change", function () {
+                runCommand("formatBlock", this.value);
+                editor.focus();
+            });
+
+            document.getElementById("quote-button").addEventListener("mousedown", function (event) {
+                event.preventDefault();
+            });
+            document.getElementById("quote-button").addEventListener("click", function () {
+                runCommand("formatBlock", "blockquote");
+            });
+
+            document.getElementById("link-button").addEventListener("mousedown", function (event) {
+                event.preventDefault();
+            });
+            document.getElementById("link-button").addEventListener("click", function () {
+                const url = window.prompt("Escribe la dirección del enlace (https://…):");
+                if (!url) return;
+                if (!/^https?:\/\/|^mailto:/i.test(url.trim())) {
+                    window.alert("El enlace debe empezar por https://, http:// o mailto:.");
+                    return;
+                }
+                runCommand("createLink", url.trim());
+            });
+
+            document.getElementById("text-color").addEventListener("input", function () {
+                document.getElementById("color-indicator").style.background = this.value;
+            });
+            document.getElementById("text-color").addEventListener("change", function () {
+                runCommand("foreColor", this.value);
+            });
+
+            document.getElementById("clear-format").addEventListener("mousedown", function (event) {
+                event.preventDefault();
+            });
+            document.getElementById("clear-format").addEventListener("click", function () {
+                runCommand("removeFormat");
+            });
+
+            editor.addEventListener("input", function () {
+                updateCounts();
+                scheduleSave();
+            });
+            titleInput.addEventListener("input", scheduleSave);
+
+            themeToggle.addEventListener("click", function () {
+                const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+                document.documentElement.dataset.theme = nextTheme;
+                themeToggle.setAttribute("aria-pressed", String(nextTheme === "dark"));
+                document.getElementById("theme-label").textContent = nextTheme === "dark" ? "Modo claro" : "Modo oscuro";
+                document.getElementById("theme-icon").textContent = nextTheme === "dark" ? "☀" : "☾";
+                try {
+                    localStorage.setItem("android17-editor-theme", nextTheme);
+                } catch (error) {
+                    console.warn("No se pudo guardar el tema elegido:", error);
+                }
+            });
+
+            document.getElementById("export-button").addEventListener("click", function () {
+                const plainText = editor.innerText;
+                const blob = new Blob([plainText], { type: "text/plain;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const download = document.createElement("a");
+                const safeTitle = (titleInput.value.trim() || "documento")
+                    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
+                    .replace(/\s+/g, "-");
+                download.href = url;
+                download.download = safeTitle + ".txt";
+                document.body.appendChild(download);
+                download.click();
+                download.remove();
+                window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            });
+
+            const fileInput = document.getElementById("file-input");
+            document.getElementById("import-button").addEventListener("click", function () {
+                fileInput.click();
+            });
+            fileInput.addEventListener("change", function () {
+                const file = this.files && this.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.addEventListener("load", function () {
+                    if (typeof reader.result !== "string") {
+                        setSaveState("No se pudo leer el archivo", true);
+                        return;
+                    }
+                    const isHtml = /\.html?$/i.test(file.name);
+                    if (isHtml) {
+                        const parsed = new DOMParser().parseFromString(reader.result, "text/html");
+                        editor.innerHTML = parsed.body.innerHTML;
+                    } else {
+                        editor.textContent = reader.result;
+                    }
+                    titleInput.value = file.name.replace(/\.[^.]+$/, "") || "Documento sin título";
+                    updateCounts();
+                    saveDocument();
+                });
+                reader.addEventListener("error", function () {
+                    console.error("No se pudo leer el archivo seleccionado:", reader.error);
+                    setSaveState("No se pudo leer el archivo", true);
+                });
+                reader.readAsText(file);
+                this.value = "";
+            });
+
+            document.addEventListener("keydown", function (event) {
+                if (!(event.ctrlKey || event.metaKey)) return;
+                const key = event.key.toLowerCase();
+                if (key === "s") {
+                    event.preventDefault();
+                    window.clearTimeout(saveTimer);
+                    saveDocument();
+                } else if (key === "b" || key === "i" || key === "u") {
+                    event.preventDefault();
+                    runCommand(key === "b" ? "bold" : key === "i" ? "italic" : "underline");
+                }
+            });
+
+            loadDocument();
+            updateCounts();
+            const darkMode = document.documentElement.dataset.theme === "dark";
+            themeToggle.setAttribute("aria-pressed", String(darkMode));
+            document.getElementById("theme-label").textContent = darkMode ? "Modo claro" : "Modo oscuro";
+            document.getElementById("theme-icon").textContent = darkMode ? "☀" : "☾";
+        }());
+    </script>
+</body>
+</html>
