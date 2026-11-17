@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="google-adsense-account" content="ca-pub-7242610445049132">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Estilo-1</title>
+        <title>Iván Vaquero | Mi primera web</title>
         <meta name="description" content="La primera web personal de Iván Vaquero, creada para practicar HTML, CSS y JavaScript.">
         <link rel="icon" href="code-icon.svg">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7242610445049132"
@@ -128,6 +128,44 @@
                 border: 1px solid var(--border);
                 border-radius: 10px;
                 background: var(--surface-soft);
+            }
+
+            .topbar-actions,
+            .topbar-nav {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .topbar-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .page-link {
+                display: inline-flex;
+                min-height: 40px;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 12px;
+                border: 1px solid var(--border);
+                border-radius: 999px;
+                background: var(--surface-soft);
+                color: var(--text);
+                font-size: 0.875rem;
+                font-weight: 600;
+                text-decoration: none;
+                transition: background-color 160ms ease, border-color 160ms ease;
+            }
+
+            .page-link:hover {
+                border-color: var(--accent);
+                background: var(--surface-soft);
+            }
+
+            .page-link:focus-visible {
+                outline: 2px solid var(--text);
+                outline-offset: 3px;
             }
 
             .theme-toggle {
@@ -487,8 +525,24 @@
                 }
 
                 .topbar {
+                    flex-wrap: wrap;
                     gap: 10px;
                     padding-bottom: 18px;
+                }
+
+                .topbar-actions {
+                    margin-left: auto;
+                    gap: 6px;
+                }
+
+                .topbar-nav {
+                    gap: 5px;
+                }
+
+                .page-link {
+                    min-height: 38px;
+                    padding: 7px 9px;
+                    font-size: 0.8rem;
                 }
 
                 .brand {
@@ -565,17 +619,24 @@
         <div class="win11">
             <header class="topbar">
                 <div class="brand">
-                    <img src="vscode-insiders.svg" alt="Imágen de VSCode Insiders">
+                    <img src="code-icon.svg" alt="">
                     <span class="brand-copy">
                         <span>Iván Vaquero</span>
                         <small>Mi espacio personal</small>
                     </span>
                 </div>
-                <button class="theme-toggle" id="theme-toggle" type="button"
-                        aria-label="Alternar tema claro y oscuro" aria-pressed="false">
-                    <span class="theme-icon" id="theme-icon" aria-hidden="true"><img src="luna.png"></span>
-                    <span id="theme-label">Modo oscuro</span>
-                </button>
+                <div class="topbar-actions">
+                    <nav class="topbar-nav" aria-label="Navegación principal">
+                        <a class="page-link" href="index.html">Inicio</a>
+                        <a class="page-link" href="Estilo-1.html" aria-current="page">Estilo 1</a>
+                        <a class="page-link" href="Android-17-Editor.html" aria-current="page">Editor de texto</a>
+                    </nav>
+                    <button class="theme-toggle" id="theme-toggle" type="button"
+                            aria-label="Alternar tema claro y oscuro" aria-pressed="false">
+                        <span class="theme-icon" id="theme-icon" aria-hidden="true"><img src=""></span>
+                        <span id="theme-label">Modo oscuro</span>
+                    </button>
+                </div>
             </header>
 
             <main class="intro">
@@ -585,13 +646,13 @@
                     <p class="lead">Hola, esta es mi primera web.</p>
                     <p>He creado esta web sin IA para repasar HTML, CSS y un poco de JavaScript.</p>
                     <p contenteditable="true">Esto debería de ser editable...</p>
-                    <a href="index.html">Volver al Inicio</a>
                     <button type="button" onclick="saludar()">Pulsa aquí</button>
                 </div>
+
                 <aside class="hero-visual" aria-label="Icono de programación">
                     <span class="visual-tag">EN CONSTRUCCIÓN</span>
                     <div class="visual-icon">
-                        <img src="vscode-insiders.svg" alt="Imágen de VSCode Insiders">
+                        <img src="code-icon.svg" alt="">
                     </div>
                     <div class="visual-caption">
                         <span>APRENDIENDO Y CREANDO</span>
@@ -599,6 +660,7 @@
                     </div>
                 </aside>
             </main>
+
             <form id="contact-form">
                 <div class="form-heading">
                     <h2>Hablemos</h2>
