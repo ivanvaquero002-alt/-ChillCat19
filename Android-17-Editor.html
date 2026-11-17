@@ -83,7 +83,7 @@
             color: inherit;
         }
 
-        button:focus-visible, input:focus-visible, select:focus-visible, [contenteditable="true"]:focus-visible {
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [contenteditable="true"]:focus-visible {
             outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
             outline-offset: 3px;
         }
@@ -163,6 +163,10 @@
             color: var(--text);
             cursor: pointer;
             transition: background 160ms ease, transform 160ms ease, border-color 160ms ease;
+        }
+
+        .subtle-button {
+            text-decoration: none;
         }
 
         .theme-toggle:hover, .subtle-button:hover {
@@ -624,6 +628,21 @@
                 font-size: 0;
             }
 
+            .topbar {
+                flex-wrap: wrap;
+            }
+
+            .top-actions {
+                margin-left: auto;
+                gap: 5px;
+            }
+
+            .top-actions .subtle-button {
+                min-height: 38px;
+                padding: 7px 10px;
+                font-size: .85rem;
+            }
+
             .theme-toggle span {
                 font-size: 1rem;
             }
@@ -696,6 +715,8 @@
                 </span>
             </div>
             <div class="top-actions">
+                <a class="subtle-button" href="../Web1/index.html">Inicio</a>
+                <a class="subtle-button" href="Estilo-1.html">Estilo 1</a>
                 <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema" aria-pressed="false">
                     <span id="theme-icon" aria-hidden="true">☾</span>
                     <span id="theme-label">Modo oscuro</span>
